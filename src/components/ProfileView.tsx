@@ -382,11 +382,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ currentUser, onLogout 
               <Flame className="w-3 h-3 text-amber-400" />
               <span>{currentUser.dailyStreak} Hari Streak</span>
             </span>
-
-            <span className="text-[11px] px-3 py-1 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 flex items-center space-x-1.5 font-semibold">
-              <Globe className="w-3 h-3 text-emerald-400" />
-              <span>Foto Tampil Publik</span>
-            </span>
           </div>
         </div>
       </div>

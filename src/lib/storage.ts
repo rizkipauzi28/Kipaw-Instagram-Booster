@@ -863,17 +863,17 @@ class StorageEngine {
     if (!user) {
       return {
         success: false,
-        error: `Akun "${identifier.trim()}" belum terdaftar. Silakan gunakan tab "Daftar Baru" atau pilih salah satu "Akun Demo" di bawah untuk login langsung.`,
+        error: `Akun "${identifier.trim()}" tidak ditemukan. Silakan periksa kembali atau buat akun baru.`,
       };
     }
 
-    // Check password if configured and passwordInput provided
+    // Check password
     const userPass = (user.password || (user.role === 'ADMIN' ? 'admin123' : 'password123')).trim();
-    if (passwordInput && passwordInput.trim() !== '') {
+    if (passwordInput !== undefined && passwordInput !== null) {
       if (passwordInput.trim() !== userPass) {
         return {
           success: false,
-          error: `Kata sandi yang dimasukkan salah. Password akun bawaan adalah "${userPass}".`,
+          error: 'Kata sandi yang Anda masukkan salah. Silakan coba lagi.',
         };
       }
     }
