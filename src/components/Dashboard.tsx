@@ -85,11 +85,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-600 via-purple-600 to-indigo-600 p-0.5 shadow-xl shadow-purple-900/30 shrink-0">
               <div className="w-full h-full rounded-2xl bg-slate-950 overflow-hidden flex items-center justify-center font-black text-xl text-white">
-                {currentUser.instagramProfile?.avatarUrl ? (
+                {currentUser.avatarUrl || currentUser.instagramProfile?.avatarUrl ? (
                   <img
-                    src={currentUser.instagramProfile.avatarUrl}
+                    src={currentUser.avatarUrl || currentUser.instagramProfile?.avatarUrl}
                     alt={currentUser.displayName}
                     className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   currentUser.displayName.charAt(0)

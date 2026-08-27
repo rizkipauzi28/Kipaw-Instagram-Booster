@@ -110,6 +110,7 @@ export interface Task {
   estimatedTimeSeconds: number;
   niche: NicheType;
   creatorId: string;
+  creatorAvatarUrl?: string;
   requiresProof: boolean;
   commentGuide?: string;
   createdAt: string;
@@ -123,6 +124,7 @@ export interface TaskSubmission {
   userUsername: string;
   userDisplayName: string;
   userInstagramUsername: string;
+  userAvatarUrl?: string;
   taskType: TaskType;
   targetUsername: string;
   targetUrl: string;

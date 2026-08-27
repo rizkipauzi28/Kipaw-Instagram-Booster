@@ -487,13 +487,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onOpenDeplo
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {allUsers.map((user) => (
+                {allUsers.map((user) => {
+                  const userAvatar = user.avatarUrl || user.instagramProfile?.avatarUrl;
+                  return (
                   <tr key={user.id} className="hover:bg-slate-800/30">
                     <td className="py-3.5">
-                      <p className="font-bold text-slate-200">{user.displayName}</p>
-                      <p className="text-[11px] font-mono text-purple-400">
-                        @{user.username} • IG: @{user.instagramProfile?.username || '-'}
-                      </p>
+                      <div className="flex items-center space-x-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-purple-600/20 border border-purple-500/30 overflow-hidden flex items-center justify-center font-bold text-xs text-white shrink-0">
+                          {userAvatar ? (
+                            <img
+                              src={userAvatar}
+                              alt={user.displayName}
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            user.displayName.charAt(0)
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-200">{user.displayName}</p>
+                          <p className="text-[11px] font-mono text-purple-400">
+                            @{user.username} • IG: @{user.instagramProfile?.username || '-'}
+                          </p>
+                        </div>
+                      </div>
                     </td>
                     <td className="py-3.5">
                       <span className="px-2.5 py-1 rounded-full bg-slate-950/60 border border-slate-800 text-[10px] font-semibold text-slate-300">
@@ -572,7 +590,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onOpenDeplo
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

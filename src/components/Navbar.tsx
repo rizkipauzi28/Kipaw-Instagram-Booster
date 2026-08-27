@@ -218,12 +218,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                     onClick={() => setShowUserDropdown(!showUserDropdown)}
                     className="flex items-center space-x-2 p-1.5 rounded-2xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 transition cursor-pointer"
                   >
-                    <div className="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-xs shadow">
-                      {currentUser.instagramProfile?.avatarUrl ? (
+                    <div className="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-xs shadow shrink-0">
+                      {currentUser.avatarUrl || currentUser.instagramProfile?.avatarUrl ? (
                         <img
-                          src={currentUser.instagramProfile.avatarUrl}
+                          src={currentUser.avatarUrl || currentUser.instagramProfile?.avatarUrl}
                           alt={currentUser.username}
                           className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
                         />
                       ) : (
                         currentUser.displayName.charAt(0).toUpperCase()

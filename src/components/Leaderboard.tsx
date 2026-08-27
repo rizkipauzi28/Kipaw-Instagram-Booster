@@ -84,99 +84,114 @@ export const Leaderboard: React.FC = () => {
             'border-orange-500/40 bg-orange-500/5',
           ];
 
-          return (
-            <div
-              key={user.id}
-              className={`p-6 rounded-3xl backdrop-blur-md border ${borders[index]} shadow-xl text-center space-y-3 relative overflow-hidden`}
-            >
-              <span className="text-xs font-black text-amber-300 block">{medals[index]}</span>
-              <div className="w-16 h-16 rounded-2xl mx-auto overflow-hidden bg-gradient-to-tr from-purple-600 to-pink-500 p-0.5 shadow-lg">
-                <div className="w-full h-full rounded-2xl bg-slate-950 overflow-hidden flex items-center justify-center font-bold text-xl text-white">
-                  {user.instagramProfile?.avatarUrl ? (
-                    <img
-                      src={user.instagramProfile.avatarUrl}
-                      alt={user.displayName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    user.displayName.charAt(0)
-                  )}
-                </div>
-              </div>
-              <div>
-                <h3 className="font-extrabold text-sm text-white">{user.displayName}</h3>
-                <p className="text-xs font-mono text-pink-400">
-                  @{user.instagramProfile?.username || user.username}
-                </p>
-                <span className="text-[10px] text-slate-400 mt-1 block">
-                  {user.instagramProfile?.niche || 'Personal'}
-                </span>
-              </div>
-              <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-xs">
-                {rankingTab === 'EARNERS' && (
-                  <span className="font-black text-amber-300">
-                    {user.points.toLocaleString('id-ID')} IG Points
-                  </span>
-                )}
-                {rankingTab === 'CONTRIBUTORS' && (
-                  <span className="font-black text-emerald-400">
-                    {user.tasksCompletedCount} Tasks Selesai
-                  </span>
-                )}
-                {rankingTab === 'CAMPAIGNS' && (
-                  <span className="font-black text-purple-300">
-                    +{user.followersEarnedCount + user.likesEarnedCount} Engagement
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              const userAvatar = user.avatarUrl || user.instagramProfile?.avatarUrl;
 
-      {/* Full Leaderboard Bento Table */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/40 backdrop-blur-md border border-slate-800/80 shadow-xl space-y-4">
-        <h2 className="text-base font-bold text-white">Peringkat Komunitas Lengkap</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
-                <th className="pb-3">Rank</th>
-                <th className="pb-3">User & Instagram</th>
-                <th className="pb-3">Niche</th>
-                <th className="pb-3 text-center">Tasks</th>
-                <th className="pb-3 text-right">IG Points</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60">
-              {sortedUsers.map((user, idx) => (
-                <tr key={user.id} className="hover:bg-slate-800/30 transition">
-                  <td className="py-3.5 font-mono font-bold text-slate-400 text-xs">
-                    #{idx + 1}
-                  </td>
-                  <td className="py-3.5">
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center font-bold text-xs text-white">
-                        {user.displayName.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-bold text-slate-200">{user.displayName}</p>
-                        <p className="text-[11px] font-mono text-pink-400">
-                          @{user.instagramProfile?.username || user.username}
-                        </p>
-                      </div>
+              return (
+                <div
+                  key={user.id}
+                  className={`p-6 rounded-3xl backdrop-blur-md border ${borders[index]} shadow-xl text-center space-y-3 relative overflow-hidden`}
+                >
+                  <span className="text-xs font-black text-amber-300 block">{medals[index]}</span>
+                  <div className="w-16 h-16 rounded-2xl mx-auto overflow-hidden bg-gradient-to-tr from-purple-600 to-pink-500 p-0.5 shadow-lg">
+                    <div className="w-full h-full rounded-2xl bg-slate-950 overflow-hidden flex items-center justify-center font-bold text-xl text-white">
+                      {userAvatar ? (
+                        <img
+                          src={userAvatar}
+                          alt={user.displayName}
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        user.displayName.charAt(0)
+                      )}
                     </div>
-                  </td>
-                  <td className="py-3.5 text-slate-400">{user.instagramProfile?.niche || 'Personal'}</td>
-                  <td className="py-3.5 text-center font-semibold text-slate-300">
-                    {user.tasksCompletedCount}
-                  </td>
-                  <td className="py-3.5 text-right font-black text-amber-300">
-                    {user.points.toLocaleString('id-ID')} Pts
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-sm text-white">{user.displayName}</h3>
+                    <p className="text-xs font-mono text-pink-400">
+                      @{user.instagramProfile?.username || user.username}
+                    </p>
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      {user.instagramProfile?.niche || 'Personal'}
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-xs">
+                    {rankingTab === 'EARNERS' && (
+                      <span className="font-black text-amber-300">
+                        {user.points.toLocaleString('id-ID')} IG Points
+                      </span>
+                    )}
+                    {rankingTab === 'CONTRIBUTORS' && (
+                      <span className="font-black text-emerald-400">
+                        {user.tasksCompletedCount} Tasks Selesai
+                      </span>
+                    )}
+                    {rankingTab === 'CAMPAIGNS' && (
+                      <span className="font-black text-purple-300">
+                        +{user.followersEarnedCount + user.likesEarnedCount} Engagement
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Full Leaderboard Bento Table */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/40 backdrop-blur-md border border-slate-800/80 shadow-xl space-y-4">
+            <h2 className="text-base font-bold text-white">Peringkat Komunitas Lengkap</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                    <th className="pb-3">Rank</th>
+                    <th className="pb-3">User & Instagram</th>
+                    <th className="pb-3">Niche</th>
+                    <th className="pb-3 text-center">Tasks</th>
+                    <th className="pb-3 text-right">IG Points</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {sortedUsers.map((user, idx) => {
+                    const rowAvatar = user.avatarUrl || user.instagramProfile?.avatarUrl;
+                    return (
+                      <tr key={user.id} className="hover:bg-slate-800/30 transition">
+                        <td className="py-3.5 font-mono font-bold text-slate-400 text-xs">
+                          #{idx + 1}
+                        </td>
+                        <td className="py-3.5">
+                          <div className="flex items-center space-x-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-purple-600/20 border border-purple-500/30 overflow-hidden flex items-center justify-center font-bold text-xs text-white shrink-0">
+                              {rowAvatar ? (
+                                <img
+                                  src={rowAvatar}
+                                  alt={user.displayName}
+                                  className="w-full h-full object-cover"
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                user.displayName.charAt(0)
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-200">{user.displayName}</p>
+                              <p className="text-[11px] font-mono text-pink-400">
+                                @{user.instagramProfile?.username || user.username}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 text-slate-400">{user.instagramProfile?.niche || 'Personal'}</td>
+                        <td className="py-3.5 text-center font-semibold text-slate-300">
+                          {user.tasksCompletedCount}
+                        </td>
+                        <td className="py-3.5 text-right font-black text-amber-300">
+                          {user.points.toLocaleString('id-ID')} Pts
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
           </table>
         </div>
       </div>

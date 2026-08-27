@@ -190,8 +190,106 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-2xl bg-red-950/40 border border-red-500/40 text-red-300 text-xs leading-relaxed">
-            {errorMsg}
+          <div className="mb-4 p-3.5 rounded-2xl bg-red-950/50 border border-red-500/40 text-red-300 text-xs leading-relaxed space-y-2">
+            <div className="flex items-start space-x-2">
+              <span className="text-red-400 font-bold">⚠️</span>
+              <p className="flex-1">{errorMsg}</p>
+            </div>
+            {mode === 'login' && username && (
+              <div className="pt-2 border-t border-red-800/40 flex items-center justify-between">
+                <span className="text-[11px] text-red-200">Belum punya akun?</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('register');
+                    setErrorMsg('');
+                    if (!email && username.includes('@')) {
+                      setEmail(username);
+                    }
+                    if (!instagramUsername && !username.includes('@')) {
+                      setInstagramUsername(username);
+                    }
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-pink-600 hover:bg-pink-500 text-white text-[11px] font-bold transition cursor-pointer"
+                >
+                  Daftar Sekarang →
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Quick Demo Accounts Selection (Super useful for Vercel deployment testing) */}
+        {mode === 'login' && (
+          <div className="mb-5 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-300">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Akun Cepat Masuk (1-Klik Login)</span>
+              </div>
+              <span className="text-[10px] text-slate-400">Pilih untuk login langsung</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  storage.quickLoginAs('admin');
+                  onClose();
+                }}
+                className="p-2.5 rounded-xl bg-purple-950/30 hover:bg-purple-900/40 border border-purple-500/30 hover:border-purple-400 text-left transition group cursor-pointer"
+              >
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-xs">👑</span>
+                  <p className="font-bold text-xs text-white group-hover:text-purple-300">Super Admin</p>
+                </div>
+                <p className="text-[10px] text-slate-400 font-mono mt-0.5">@kipawadmin</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  storage.quickLoginAs('demo');
+                  onClose();
+                }}
+                className="p-2.5 rounded-xl bg-pink-950/30 hover:bg-pink-900/40 border border-pink-500/30 hover:border-pink-400 text-left transition group cursor-pointer"
+              >
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-xs">👤</span>
+                  <p className="font-bold text-xs text-white group-hover:text-pink-300">Member Aktif</p>
+                </div>
+                <p className="text-[10px] text-slate-400 font-mono mt-0.5">@rizkipauzi</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  storage.quickLoginAs('tokosaya');
+                  onClose();
+                }}
+                className="p-2.5 rounded-xl bg-indigo-950/30 hover:bg-indigo-900/40 border border-indigo-500/30 hover:border-indigo-400 text-left transition group cursor-pointer"
+              >
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-xs">🛍️</span>
+                  <p className="font-bold text-xs text-white group-hover:text-indigo-300">Toko Saya</p>
+                </div>
+                <p className="text-[10px] text-slate-400 font-mono mt-0.5">@tokosaya</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  storage.quickLoginAs('kulinerbdg');
+                  onClose();
+                }}
+                className="p-2.5 rounded-xl bg-emerald-950/30 hover:bg-emerald-900/40 border border-emerald-500/30 hover:border-emerald-400 text-left transition group cursor-pointer"
+              >
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-xs">🍜</span>
+                  <p className="font-bold text-xs text-white group-hover:text-emerald-300">Kuliner BDG</p>
+                </div>
+                <p className="text-[10px] text-slate-400 font-mono mt-0.5">@kulinerbdg</p>
+              </button>
+            </div>
           </div>
         )}
 
@@ -354,6 +452,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <span>{mode === 'register' ? 'Selesaikan Pendaftaran' : 'Masuk ke Akun'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
+
+          {mode === 'login' && (
+            <div className="pt-3 text-center space-y-1.5 text-[11px] text-slate-400 border-t border-slate-800/60">
+              <p className="text-slate-400">
+                💡 <span className="font-semibold text-slate-300">Password Akun Bawaan:</span>{' '}
+                <code className="text-pink-300 font-mono bg-slate-950 px-1 py-0.5 rounded">password123</code> (atau{' '}
+                <code className="text-purple-300 font-mono bg-slate-950 px-1 py-0.5 rounded">admin123</code> untuk Admin)
+              </p>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    storage.resetToDefaultSeed();
+                    setErrorMsg('');
+                    alert('Data akun demo berhasil dimuat ulang! Anda sekarang dapat langsung login.');
+                  }}
+                  className="text-[10px] text-slate-500 hover:text-purple-400 underline transition cursor-pointer"
+                >
+                  Muat Ulang / Reset Data Akun Demo
+                </button>
+              </div>
+            </div>
+          )}
         </form>
       </div>
     </div>

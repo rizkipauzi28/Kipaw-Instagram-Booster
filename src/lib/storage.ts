@@ -578,14 +578,45 @@ class StorageEngine {
   }
 
   private loadState(): DatabaseState {
+    const initial = createInitialDatabase();
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const data = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
       if (data) {
         const parsed = JSON.parse(data);
-        // ensure all properties exist
+        const existingUsers: User[] = Array.isArray(parsed.users) ? parsed.users : [];
+
+        // Ensure default seed users always exist in database for seamless login
+        initial.users.forEach((seedUser) => {
+          const foundIndex = existingUsers.findIndex(
+            (u) =>
+              u.id === seedUser.id ||
+              u.username.toLowerCase() === seedUser.username.toLowerCase() ||
+              u.email.toLowerCase() === seedUser.email.toLowerCase()
+          );
+          if (foundIndex === -1) {
+            existingUsers.push(seedUser);
+          } else {
+            // Ensure password is always populated even from older storage states
+            if (!existingUsers[foundIndex].password) {
+              existingUsers[foundIndex].password = seedUser.password;
+            }
+            if (!existingUsers[foundIndex].role && seedUser.role) {
+              existingUsers[foundIndex].role = seedUser.role;
+            }
+          }
+        });
+
+        // Ensure every user has a valid password fallback
+        existingUsers.forEach((u) => {
+          if (!u.password) {
+            u.password = u.role === 'ADMIN' ? 'admin123' : 'password123';
+          }
+        });
+
         return {
-          ...createInitialDatabase(),
+          ...initial,
           ...parsed,
+          users: existingUsers,
           settings: { ...DEFAULT_SETTINGS, ...(parsed.settings || {}) },
           achievements: DEFAULT_ACHIEVEMENTS,
         };
@@ -593,7 +624,6 @@ class StorageEngine {
     } catch (e) {
       console.warn('Failed to load storage state:', e);
     }
-    const initial = createInitialDatabase();
     this.saveStateDirect(initial);
     return initial;
   }
@@ -814,18 +844,38 @@ class StorageEngine {
   }
 
   public login(identifier: string, passwordInput?: string): { success: boolean; error?: string; user?: User } {
-    const clean = identifier.trim().toLowerCase().replace('@', '');
+    const rawClean = identifier.trim().toLowerCase();
+    const clean = rawClean.replace(/^@/, '');
+
+    if (!clean) {
+      return { success: false, error: 'Silakan masukkan username, email, atau username Instagram Anda.' };
+    }
+
+    // Flexible search: by username, email, or Instagram handle
     const user = this.state.users.find(
-      (u) => u.username.toLowerCase() === clean || u.email.toLowerCase() === clean
+      (u) =>
+        u.username.toLowerCase() === clean ||
+        u.email.toLowerCase() === rawClean ||
+        u.email.toLowerCase() === clean ||
+        (u.instagramProfile && u.instagramProfile.username.toLowerCase().replace(/^@/, '') === clean)
     );
 
     if (!user) {
-      return { success: false, error: 'Akun tidak ditemukan. Silakan periksa kembali atau buat akun baru.' };
+      return {
+        success: false,
+        error: `Akun "${identifier.trim()}" belum terdaftar. Silakan gunakan tab "Daftar Baru" atau pilih salah satu "Akun Demo" di bawah untuk login langsung.`,
+      };
     }
 
     // Check password if configured and passwordInput provided
-    if (passwordInput && user.password && user.password !== passwordInput.trim()) {
-      return { success: false, error: 'Kata sandi / password yang dimasukkan salah.' };
+    const userPass = (user.password || (user.role === 'ADMIN' ? 'admin123' : 'password123')).trim();
+    if (passwordInput && passwordInput.trim() !== '') {
+      if (passwordInput.trim() !== userPass) {
+        return {
+          success: false,
+          error: `Kata sandi yang dimasukkan salah. Password akun bawaan adalah "${userPass}".`,
+        };
+      }
     }
 
     if (user.isBanned) {
@@ -840,6 +890,42 @@ class StorageEngine {
     this.saveCurrentUserId(user.id);
     this.notify();
     return { success: true, user };
+  }
+
+  public quickLoginAs(accountKey: 'admin' | 'demo' | 'tokosaya' | 'kulinerbdg'): { success: boolean; user?: User; error?: string } {
+    let targetUsername = 'rizkipauzi';
+    if (accountKey === 'admin') targetUsername = 'kipawadmin';
+    else if (accountKey === 'tokosaya') targetUsername = 'tokosaya';
+    else if (accountKey === 'kulinerbdg') targetUsername = 'kulinerbdg';
+
+    const user = this.state.users.find((u) => u.username.toLowerCase() === targetUsername.toLowerCase());
+    if (!user) {
+      // Re-seed if missing
+      const initial = createInitialDatabase();
+      this.state.users = [...initial.users, ...this.state.users.filter(u => !initial.users.some(iu => iu.id === u.id))];
+      this.saveState();
+      const retryUser = this.state.users.find((u) => u.username.toLowerCase() === targetUsername.toLowerCase());
+      if (retryUser) {
+        this.currentUserId = retryUser.id;
+        this.saveCurrentUserId(retryUser.id);
+        this.notify();
+        return { success: true, user: retryUser };
+      }
+      return { success: false, error: 'Akun demo tidak ditemukan.' };
+    }
+
+    this.currentUserId = user.id;
+    this.saveCurrentUserId(user.id);
+    this.notify();
+    return { success: true, user };
+  }
+
+  public resetToDefaultSeed(): void {
+    const initial = createInitialDatabase();
+    this.state = initial;
+    this.currentUserId = initial.users[1]?.id || initial.users[0]?.id || null;
+    this.saveCurrentUserId(this.currentUserId);
+    this.saveState();
   }
 
   public changePassword(
@@ -918,19 +1004,76 @@ class StorageEngine {
     this.notify();
   }
 
-  public updateInstagramProfile(userId: string, data: { username: string; profileUrl: string; niche: NicheType }) {
+  public updateInstagramProfile(userId: string, data: { username: string; profileUrl: string; niche: NicheType; avatarUrl?: string }) {
     const user = this.getUserById(userId);
     if (!user) return;
     const cleanIg = data.username.trim().replace('@', '');
+    const effectiveAvatar = data.avatarUrl !== undefined ? data.avatarUrl : (user.avatarUrl || user.instagramProfile?.avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${cleanIg}`);
+    
     user.instagramProfile = {
       id: user.instagramProfile?.id || `ig_${Date.now()}`,
       userId,
       username: cleanIg,
       profileUrl: data.profileUrl || `https://instagram.com/${cleanIg}`,
       niche: data.niche,
-      avatarUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${cleanIg}`,
+      avatarUrl: effectiveAvatar,
     };
+    if (data.avatarUrl !== undefined) {
+      user.avatarUrl = data.avatarUrl;
+    }
     this.saveState();
+  }
+
+  public updateUserProfile(
+    userId: string,
+    data: {
+      displayName?: string;
+      avatarUrl?: string;
+      instagramUsername?: string;
+      instagramProfileUrl?: string;
+      niche?: NicheType;
+    }
+  ): { success: boolean; error?: string; user?: User } {
+    const user = this.getUserById(userId);
+    if (!user) return { success: false, error: 'User tidak ditemukan.' };
+
+    if (data.displayName !== undefined) {
+      const cleanName = data.displayName.trim();
+      if (cleanName) {
+        user.displayName = cleanName;
+      }
+    }
+
+    if (data.avatarUrl !== undefined) {
+      user.avatarUrl = data.avatarUrl;
+      if (user.instagramProfile) {
+        user.instagramProfile.avatarUrl = data.avatarUrl;
+      }
+    }
+
+    if (data.instagramUsername !== undefined || data.instagramProfileUrl !== undefined || data.niche !== undefined) {
+      const cleanIg = data.instagramUsername ? data.instagramUsername.trim().replace('@', '') : (user.instagramProfile?.username || user.username);
+      user.instagramProfile = {
+        id: user.instagramProfile?.id || `ig_${Date.now()}`,
+        userId,
+        username: cleanIg,
+        profileUrl: data.instagramProfileUrl || (data.instagramUsername ? `https://instagram.com/${cleanIg}` : user.instagramProfile?.profileUrl || `https://instagram.com/${cleanIg}`),
+        niche: data.niche || user.instagramProfile?.niche || 'Personal',
+        avatarUrl: data.avatarUrl !== undefined ? data.avatarUrl : (user.avatarUrl || user.instagramProfile?.avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${cleanIg}`),
+      };
+    }
+
+    // Sync campaigns created by this user so public sees their updated avatar & displayName
+    const effectiveAvatar = user.avatarUrl || user.instagramProfile?.avatarUrl;
+    this.state.campaigns.forEach((cmp) => {
+      if (cmp.userId === userId) {
+        if (data.displayName) cmp.creatorDisplayName = user.displayName;
+        if (effectiveAvatar) cmp.creatorAvatarUrl = effectiveAvatar;
+      }
+    });
+
+    this.saveState();
+    return { success: true, user };
   }
 
   // Daily Streak Claim
@@ -1091,6 +1234,7 @@ class StorageEngine {
       userId: user.id,
       creatorUsername: user.username,
       creatorDisplayName: user.displayName,
+      creatorAvatarUrl: user.avatarUrl || user.instagramProfile?.avatarUrl,
       type: payload.type,
       title: autoTitle,
       targetInstagramUsername: cleanIg,
@@ -1146,6 +1290,7 @@ class StorageEngine {
       estimatedTimeSeconds: taskType === 'COMMENT' ? 30 : taskType === 'FOLLOW' ? 15 : 10,
       niche: newCampaign.niche || 'Other',
       creatorId: user.id,
+      creatorAvatarUrl: user.avatarUrl || user.instagramProfile?.avatarUrl,
       requiresProof: true,
       commentGuide: payload.commentGuide,
       createdAt: new Date().toISOString(),
@@ -1269,6 +1414,7 @@ class StorageEngine {
       userUsername: user.username,
       userDisplayName: user.displayName,
       userInstagramUsername: user.instagramProfile ? `@${user.instagramProfile.username}` : `@${user.username}`,
+      userAvatarUrl: user.avatarUrl || user.instagramProfile?.avatarUrl,
       taskType: task.type,
       targetUsername: task.targetUsername,
       targetUrl: task.targetUrl,
