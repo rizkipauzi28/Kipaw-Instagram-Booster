@@ -23,7 +23,9 @@ import {
   Globe,
   Check,
   Layers,
-  HelpCircle
+  HelpCircle,
+  Zap,
+  Users
 } from 'lucide-react';
 import { User, NicheType } from '../types';
 import { storage } from '../lib/storage';
@@ -31,6 +33,7 @@ import { storage } from '../lib/storage';
 interface ProfileViewProps {
   currentUser: User;
   onLogout?: () => void;
+  onNavigate?: (tab: string) => void;
 }
 
 const NICHES: NicheType[] = [
@@ -110,7 +113,7 @@ const AVATAR_PRESETS = [
   },
 ];
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ currentUser, onLogout }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ currentUser, onLogout, onNavigate }) => {
   const currentAvatar = currentUser.avatarUrl || currentUser.instagramProfile?.avatarUrl || '';
   
   // Profile info states
@@ -843,6 +846,45 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ currentUser, onLogout 
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Followers Live Card */}
+          <div className="p-5 rounded-2xl bg-slate-950/80 border border-purple-500/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-purple-400" />
+                <span>Statistik Followers Instagram Real-Time</span>
+              </span>
+              {onNavigate && (
+                <button
+                  type="button"
+                  onClick={() => onNavigate('booster')}
+                  className="px-3 py-1 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 text-xs font-bold border border-pink-500/30 transition flex items-center gap-1 cursor-pointer"
+                >
+                  <Zap className="w-3.5 h-3.5 text-pink-400" />
+                  <span>Buka Booster</span>
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-slate-400 font-bold block uppercase">Total Followers</span>
+                <span className="text-lg font-black text-white">
+                  {(currentUser.instagramProfile?.followersCount || 1420).toLocaleString('id-ID')}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-pink-400 font-bold block uppercase">Added via Booster</span>
+                <span className="text-lg font-black text-pink-400">
+                  +{(currentUser.followersEarnedCount || 0).toLocaleString('id-ID')}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-emerald-400 font-bold block uppercase">Status Integrasi</span>
+                <span className="text-xs font-bold text-emerald-300 mt-1 block">Terkoneksi</span>
+              </div>
+            </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-[11px] text-emerald-400 flex items-center space-x-2">

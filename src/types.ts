@@ -48,6 +48,10 @@ export interface InstagramProfile {
   niche: NicheType;
   verifiedAt?: string;
   avatarUrl?: string;
+  followersCount?: number;
+  followingCount?: number;
+  postsCount?: number;
+  biography?: string;
 }
 
 export interface User {
@@ -236,3 +240,82 @@ export interface PlatformStats {
   activeCampaignsCount: number;
   pendingReviewsCount: number;
 }
+
+export type FollowerQualityType = 'INDONESIA_REAL' | 'GLOBAL_MIX' | 'ACTIVE_CREATOR';
+export type BoosterSpeedType = 'INSTANT' | 'FAST' | 'ORGANIC';
+
+export interface FollowerAccount {
+  id: string;
+  username: string;
+  fullName: string;
+  avatarUrl: string;
+  isVerified?: boolean;
+  followedAt: string;
+  postsCount?: number;
+  followersCount?: number;
+  bio?: string;
+  location?: string;
+}
+
+export interface SmmProviderConfig {
+  id: string;
+  name: string;
+  apiUrl: string;
+  apiKey: string;
+  serviceId: string;
+  serviceName: string;
+  pricePerK?: number;
+  currency?: string;
+  minQty: number;
+  maxQty: number;
+  isActive: boolean;
+  lastBalance?: string;
+  lastChecked?: string;
+  isVerified?: boolean;
+}
+
+export type BoostDeliveryMode = 'REAL_SMM_API' | 'COMMUNITY_ORGANIC_NETWORK' | 'DIRECT_INSTAGRAM_BROADCAST';
+
+export interface FollowerBoostOrder {
+  id: string;
+  targetInstagramUsername: string;
+  targetUserId?: string;
+  targetDisplayName?: string;
+  targetAvatarUrl?: string;
+  instagramProfileUrl: string;
+  previousFollowersCount: number;
+  quantity: number;
+  deliveredCount: number;
+  newFollowersCount: number;
+  status: 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
+  speed: BoosterSpeedType;
+  followerQuality: FollowerQualityType;
+  serverNode: string;
+  adminId: string;
+  adminUsername: string;
+  note?: string;
+  createdAt: string;
+  completedAt?: string;
+  deliveredFollowers: FollowerAccount[];
+  deliveryMode: BoostDeliveryMode;
+  smmProviderId?: string;
+  smmProviderName?: string;
+  smmOrderId?: string;
+  isRealApiDispatched?: boolean;
+  broadcastCampaignId?: string;
+}
+
+export interface FollowerBoostRequest {
+  id: string;
+  userId: string;
+  userUsername: string;
+  userDisplayName: string;
+  targetInstagramUsername: string;
+  requestedQuantity: number;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+}
+

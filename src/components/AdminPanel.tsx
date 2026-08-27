@@ -24,7 +24,8 @@ import {
   Megaphone,
   Database,
   KeyRound,
-  Lock
+  Lock,
+  Zap
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -51,11 +52,12 @@ import { storage } from '../lib/storage';
 interface AdminPanelProps {
   currentUser: User | null;
   onOpenDeployGuide: () => void;
+  onNavigate?: (tab: string) => void;
 }
 
 const COLORS = ['#ec4899', '#a855f7', '#6366f1', '#3b82f6', '#10b981'];
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onOpenDeployGuide }) => {
+export const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onOpenDeployGuide, onNavigate }) => {
   const [activeTab, setActiveTab] = useState<
     'analytics' | 'submissions' | 'users' | 'campaigns' | 'settings' | 'reports'
   >('analytics');
@@ -193,7 +195,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onOpenDeplo
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 relative z-10">
+        <div className="flex flex-wrap items-center gap-2 relative z-10">
+          <button
+            onClick={() => onNavigate && onNavigate('booster')}
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:opacity-95 text-white text-xs font-black transition flex items-center space-x-1.5 shadow-lg shadow-purple-600/25 cursor-pointer"
+          >
+            <Zap className="w-4 h-4" />
+            <span>Injeksi Followers Instagram</span>
+          </button>
           <button
             onClick={onOpenDeployGuide}
             className="px-3.5 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer"

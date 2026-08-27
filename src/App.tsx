@@ -11,6 +11,7 @@ import { Achievements } from './components/Achievements';
 import { ReferralCenter } from './components/ReferralCenter';
 import { ProfileView } from './components/ProfileView';
 import { AdminPanel } from './components/AdminPanel';
+import { InstagramFollowersBooster } from './components/InstagramFollowersBooster';
 import { AuthModal } from './components/AuthModal';
 import { DeployGuideModal } from './components/DeployGuideModal';
 import { KipawLogo } from './components/KipawLogo';
@@ -153,13 +154,22 @@ export default function App() {
         )}
 
         {activeTab === 'profile' && currentUser && (
-          <ProfileView currentUser={currentUser} onLogout={handleLogout} />
+          <ProfileView currentUser={currentUser} onLogout={handleLogout} onNavigate={handleNavigate} />
+        )}
+
+        {(activeTab === 'booster' || activeTab === 'followers-booster') && (
+          <InstagramFollowersBooster
+            currentUser={currentUser || storage.getCurrentUser()!}
+            onNavigate={handleNavigate}
+            onRefreshUser={() => setCurrentUser(storage.getCurrentUser())}
+          />
         )}
 
         {activeTab === 'admin' && (
           <AdminPanel
             currentUser={currentUser}
             onOpenDeployGuide={() => setIsDeployGuideOpen(true)}
+            onNavigate={handleNavigate}
           />
         )}
       </main>

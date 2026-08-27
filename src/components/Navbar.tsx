@@ -14,7 +14,8 @@ import {
   Compass,
   PlusCircle,
   HelpCircle,
-  ExternalLink
+  ExternalLink,
+  Zap
 } from 'lucide-react';
 import { User, NotificationItem } from '../types';
 import { storage } from '../lib/storage';
@@ -58,6 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Compass, requiresAuth: true },
     { id: 'tasks', label: 'Task Center', icon: Sparkles, requiresAuth: false },
+    { id: 'booster', label: 'IG Booster', icon: Zap, requiresAuth: false },
     { id: 'campaigns', label: 'Campaigns', icon: PlusCircle, requiresAuth: true },
     { id: 'points', label: 'IG Points', icon: Coins, requiresAuth: true },
     { id: 'referral', label: 'Referral', icon: Users, requiresAuth: true },
@@ -251,6 +253,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </div>
 
                       <div className="space-y-1 text-xs font-semibold">
+                        <button
+                          onClick={() => {
+                            setActiveTab('booster');
+                            setShowUserDropdown(false);
+                          }}
+                          className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-pink-300 hover:text-white hover:bg-purple-950/40 border border-purple-500/20 transition cursor-pointer"
+                        >
+                          <Zap className="w-4 h-4 text-pink-400" />
+                          <span>{currentUser?.role === 'ADMIN' ? '⚡ Injeksi Followers (Admin)' : '🚀 IG Follower Booster'}</span>
+                        </button>
+
                         <button
                           onClick={() => {
                             setActiveTab('profile');
